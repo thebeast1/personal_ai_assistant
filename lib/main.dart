@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       // Task-switcher title, in the app's language.
       onGenerateTitle: (context) => AppStrings.of(context).assistantName,
       // Arabic switches the whole app to right-to-left.
