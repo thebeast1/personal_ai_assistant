@@ -16,7 +16,7 @@
     <!-- Gallery (Permission.photos). Android 13+: READ_MEDIA_IMAGES.
          Android 14+: READ_MEDIA_VISUAL_USER_SELECTED lets the user grant
          access to selected photos only ("limited" in permission_handler).
-         Android 12 and below (minSdk is 30): READ_EXTERNAL_STORAGE. -->
+         Android 12 and below (minSdk is 28): READ_EXTERNAL_STORAGE. -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
     <uses-permission

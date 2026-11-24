@@ -30,35 +30,34 @@ class ChatProvider extends ChangeNotifier {
   Future<void> init() async {
     try {
       await FlutterEdgeAi.installModel(
-        modelType: ModelType.gemma4,
-        fileType: ModelFileType.litertlm,
-      ).fromNetwork(AppConstants.gemmaURL, foreground: true).withProgress((p) {
+        modelType: ModelType.qwen,
+        fileType: ModelFileType.gguf,
+      ).fromNetwork(AppConstants.modelURL, foreground: true).withProgress((p) {
         _installProgress = p;
         notifyListeners();
       }).install();
 
+      // Text only, and a 2048-token context to fit phones with 4 GB of RAM.
       _model = await FlutterEdgeAi.getActiveModel(
-        supportImage: true,
-        supportAudio: true,
-        maxTokens: 4096, // context window: prompt + history + reply
+        maxTokens: 2048, // context window: prompt + history + reply
       );
-      _chat = await _model.openChat(
-        supportImage: true,
-        supportAudio: true,
-        temperature: 1.0,
-        topK: 64,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-        // optional: limits the length of one reply
-        modelType: ModelType.gemma4,
-        systemInstruction: AppConstants.systemInstruction,
-      );
+      _chat = await _openChat();
       _isInitializing = false;
       notifyListeners();
     } catch (e) {
       log("error in init: $e");
     }
   }
+
+  // Qwen2.5's recommended sampling settings.
+  Future<InferenceChat> _openChat() => _model.openChat(
+    temperature: 0.7,
+    topK: 20,
+    topP: 0.8,
+    maxOutputTokens: 512, // optional: limits the length of one reply
+    modelType: ModelType.qwen,
+    systemInstruction: AppConstants.systemInstruction,
+  );
 
   /// The reply being streamed, token by token. Empty until the first token.
   final StringBuffer draftMessage = StringBuffer();
@@ -109,17 +108,7 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _chat.close();
-      _chat = await _model.openChat(
-        supportImage: true,
-        supportAudio: true,
-        temperature: 1.0,
-        topK: 64,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-        // optional: limits the length of one reply
-        modelType: ModelType.gemma4,
-        systemInstruction: AppConstants.systemInstruction,
-      );
+      _chat = await _openChat();
       _chatList.clear();
       draftMessage.clear();
     } catch (e) {

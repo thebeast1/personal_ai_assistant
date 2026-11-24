@@ -19,8 +19,17 @@ android {
         applicationId = "com.example.personal_ai_assistant"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // flutter_edge_ai_litertlm (LiteRT-LM) requires minSdk 30.
-        minSdk = 30
+        // llama.cpp (flutter_edge_ai_llama) is qualified from API 28, so this
+        // build installs on Android 9+ (e.g. Huawei Y8p on Android 10).
+        minSdk = 28
+        // llama.cpp ships arm64-v8a and x86_64 only (no 32-bit armeabi-v7a).
+        // Flutter owns ABI selection for split APKs; only constrain fat APKs/AABs.
+        if (project.findProperty("split-per-abi") != "true") {
+            ndk {
+                abiFilters.clear()
+                abiFilters += listOf("arm64-v8a", "x86_64")
+            }
+        }
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)

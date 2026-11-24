@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:personal_ai_assistant/core/utils/app_constants.dart';
 import 'package:personal_ai_assistant/core/localization/app_strings.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_composer_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_provider.dart';
@@ -72,7 +73,6 @@ class _ChatInputBarContent extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -104,23 +104,24 @@ class _ChatInputBarContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   spacing: 8,
                   children: [
-                    AnimatedScale(
-                      scale: enabled ? 1 : 0.9,
-                      duration: const Duration(milliseconds: 150),
-                      child: IconButton(
-                        onPressed: !chatProvider.isGeneratingRespond
-                            ? () {
-                                _pickImages(context);
-                              }
-                            : null,
-                        iconSize: 22,
-                        style: IconButton.styleFrom(
-                          fixedSize: const Size.square(50),
+                    if (AppConstants.supportsImages)
+                      AnimatedScale(
+                        scale: enabled ? 1 : 0.9,
+                        duration: const Duration(milliseconds: 150),
+                        child: IconButton(
+                          onPressed: !chatProvider.isGeneratingRespond
+                              ? () {
+                                  _pickImages(context);
+                                }
+                              : null,
+                          iconSize: 22,
+                          style: IconButton.styleFrom(
+                            fixedSize: const Size.square(50),
+                          ),
+                          tooltip: strings.send,
+                          icon: const Icon(Icons.attach_file),
                         ),
-                        tooltip: strings.send,
-                        icon: const Icon(Icons.attach_file),
                       ),
-                    ),
 
                     Expanded(
                       child: TextField(
@@ -141,29 +142,34 @@ class _ChatInputBarContent extends StatelessWidget {
                             horizontal: 20,
                             vertical: 14,
                           ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              composerProvider.toggleRecording(context);
-                            },
-                            tooltip: composerProvider.isRecording
-                                ? strings.stopRecording
-                                : strings.startRecording,
-                            icon: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              transitionBuilder: (child, animation) =>
-                                  ScaleTransition(scale: animation, child: child),
-                              child: composerProvider.isRecording
-                                  ? Icon(
-                                      Icons.stop_circle_rounded,
-                                      key: const ValueKey('stop'),
-                                      color: colors.error,
-                                    )
-                                  : const Icon(
-                                      Icons.mic,
-                                      key: ValueKey('mic'),
-                                    ),
-                            ),
-                          ),
+                          suffixIcon: !AppConstants.supportsAudio
+                              ? null
+                              : IconButton(
+                                  onPressed: () {
+                                    composerProvider.toggleRecording(context);
+                                  },
+                                  tooltip: composerProvider.isRecording
+                                      ? strings.stopRecording
+                                      : strings.startRecording,
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    transitionBuilder: (child, animation) =>
+                                        ScaleTransition(
+                                          scale: animation,
+                                          child: child,
+                                        ),
+                                    child: composerProvider.isRecording
+                                        ? Icon(
+                                            Icons.stop_circle_rounded,
+                                            key: const ValueKey('stop'),
+                                            color: colors.error,
+                                          )
+                                        : const Icon(
+                                            Icons.mic,
+                                            key: ValueKey('mic'),
+                                          ),
+                                  ),
+                                ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(28),
                             borderSide: BorderSide.none,

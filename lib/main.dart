@@ -1,5 +1,5 @@
 import 'package:flutter_edge_ai/engine.dart';
-import 'package:flutter_edge_ai_litertlm/flutter_edge_ai_litertlm.dart';
+import 'package:flutter_edge_ai_llama/flutter_edge_ai_llama.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:personal_ai_assistant/core/localization/app_strings.dart';
 import 'package:personal_ai_assistant/core/localization/locale_provider.dart';
@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterEdgeAi.initialize(inferenceEngines: [LiteRtLmEngine()]);
+  await FlutterEdgeAi.initialize(inferenceEngines: const [LlamaEngineProvider()]);
 
   // Loaded before runApp so the first frame already uses the saved language.
   final prefs = await SharedPreferencesWithCache.create(

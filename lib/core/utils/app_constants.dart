@@ -1,6 +1,13 @@
 abstract final class AppConstants {
-  static String gemmaURL =
-      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
+  /// Qwen2.5 1.5B Instruct (Q4_K_M, ~1.1 GB) run by llama.cpp. Small enough
+  /// for 4 GB phones on Android 9+, and it speaks Arabic (Gemma 3 1B is
+  /// English-only). Text only: no image or audio input.
+  static const String modelURL =
+      'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf';
+
+  /// This model can't read images or audio, so the UI hides those buttons.
+  static const bool supportsImages = false;
+  static const bool supportsAudio = false;
 
   /// The assistant's name, as shown in the app and given to the model.
   static const String assistantNameEn = 'Khadeja';
