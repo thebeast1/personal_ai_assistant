@@ -295,7 +295,7 @@ flutter drive -d <device-id> \
 - [ ] Voice-message playback
 - [ ] Save conversations between launches
 - [ ] Stop-generation button
-- [ ] Dark theme
+- [x] Dark theme (follows the system setting)
 
 ## Acknowledgements
 
