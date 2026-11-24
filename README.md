@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/02_empty_chat.png" alt="Empty chat with suggestions" width="230" />
-  <img src="docs/screenshots/04_reply.png" alt="A streamed markdown reply" width="230" />
-  <img src="docs/screenshots/08_arabic_reply.png" alt="Arabic, right-to-left" width="230" />
+  <img src="docs/screenshots/02_empty_chat.png" alt="Empty chat with suggestions, in Arabic" width="230" />
+  <img src="docs/screenshots/06_voice_reply.png" alt="Replying to a voice message" width="230" />
+  <img src="docs/screenshots/10_photo_reply.png" alt="Answering a question about a photo" width="230" />
 </p>
 
 ---
@@ -55,20 +55,24 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
 
 ## Screenshots
 
-| First-run download | Empty chat | Thinking… | Streamed reply |
+| First-run download | Empty chat (RTL) | Streamed reply | Recording a voice message |
 |:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/01_download.png" width="200" /> | <img src="docs/screenshots/02_empty_chat.png" width="200" /> | <img src="docs/screenshots/03_thinking.png" width="200" /> | <img src="docs/screenshots/04_reply.png" width="200" /> |
+| <img src="docs/screenshots/01_download.png" width="200" /> | <img src="docs/screenshots/02_empty_chat.png" width="200" /> | <img src="docs/screenshots/03_text_reply.png" width="200" /> | <img src="docs/screenshots/04_recording.png" width="200" /> |
 
-| Photo + voice attached | Clear conversation | العربية (RTL) | Arabic reply |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/06_attachments.png" width="200" /> | <img src="docs/screenshots/05_clear_dialog.png" width="200" /> | <img src="docs/screenshots/07_arabic_empty.png" width="200" /> | <img src="docs/screenshots/08_arabic_reply.png" width="200" /> |
+| Voice message attached | Reply to a voice message | Clear conversation |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/05_voice_attached.png" width="200" /> | <img src="docs/screenshots/06_voice_reply.png" width="200" /> | <img src="docs/screenshots/07_clear_dialog.png" width="200" /> |
+
+| Photo attached | Thinking… | Reply about the photo |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/08_photo_attached.png" width="200" /> | <img src="docs/screenshots/09_thinking.png" width="200" /> | <img src="docs/screenshots/10_photo_reply.png" width="200" /> |
 
 | App icon | Splash screen |
 |:---:|:---:|
 | <img src="assets/icon/app_icon.png" width="140" /> | <img src="assets/splash/splash.png" width="140" /> |
 
-> Screenshots are from the iPhone 17 Pro simulator with the real model (on the simulator it runs on the
-> CPU, so replies are slower than on a phone). Regenerate them with the screenshot test — see [Testing](#testing).
+> Screenshots are from real devices running the model on-device: an iPhone, plus an Android phone for
+> the download screen.
 
 ## Features
 
@@ -267,7 +271,8 @@ flutter test
 of non-WAV data.
 
 `integration_test/screenshots_test.dart` drives the real app (with the real model) through the main
-screens and saves the README screenshots to `docs/screenshots/`. `flutter drive` uninstalls the
+screens and saves screenshots to `docs/screenshots/` (it uses its own file names; the README images
+were taken by hand on real devices). `flutter drive` uninstalls the
 app when it finishes, so each run downloads the model (~2.6 GB) again first:
 
 ```bash
