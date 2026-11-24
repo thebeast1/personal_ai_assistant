@@ -12,7 +12,7 @@ class AppStrings {
 
   String _t(String en, String ar) => isArabic ? ar : en;
 
-  /// The assistant's name: Khadeja / خديجة.
+  /// The assistant's name: Khadeja / خديچة.
   String get assistantName =>
       _t(AppConstants.assistantNameEn, AppConstants.assistantNameAr);
 

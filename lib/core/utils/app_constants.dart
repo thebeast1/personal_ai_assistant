@@ -4,7 +4,7 @@ abstract final class AppConstants {
 
   /// The assistant's name, as shown in the app and given to the model.
   static const String assistantNameEn = 'Khadeja';
-  static const String assistantNameAr = 'خديجة';
+  static const String assistantNameAr = 'خديچة';
 
   /// System prompt for the on-device assistant. Kept short and explicit:
   /// small models follow a few clear rules better than long instructions.
