@@ -41,24 +41,10 @@ class MyApp extends StatelessWidget {
       locale: context.watch<LocaleProvider>().locale,
       supportedLocales: LocaleProvider.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      // Light and dark themes from the same seed; follows the phone's setting.
+      theme: _theme(Brightness.light),
+      darkTheme: _theme(Brightness.dark),
+      themeMode: ThemeMode.system,
       home: ChangeNotifierProvider(
         create: (context) => ChatProvider()..init(),
         child: ChatScreen(),
@@ -66,3 +52,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+ThemeData _theme(Brightness brightness) => ThemeData(
+  colorScheme: .fromSeed(seedColor: Colors.deepPurple, brightness: brightness),
+);
