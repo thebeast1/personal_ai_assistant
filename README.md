@@ -2,7 +2,7 @@
   <img src="assets/icon/app_icon.png" alt="Khadeja app icon" width="120" />
 </p>
 
-<h1 align="center">Khadeja · خديجة</h1>
+<h1 align="center">Khadeja · خديچة</h1>
 
 <p align="center">
   A private AI chat assistant that runs <b>entirely on your phone</b>.<br/>
@@ -97,10 +97,10 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
 - **Full right-to-left layout** in Arabic — bubbles, tails, shimmer direction and icons mirror.
 - **Per-message text direction** — an Arabic message reads RTL even in the English UI, and
   vice versa.
-- **Localized launcher name** — *خديجة* on Arabic devices, *Khadeja* elsewhere.
+- **Localized launcher name** — *خديچة* on Arabic devices, *Khadeja* elsewhere.
 
 ### 🤖 Assistant persona
-- A short, structured **system prompt**: her name (*Khadeja / خديجة*), a warm and concise tone,
+- A short, structured **system prompt**: her name (*Khadeja / خديچة*), a warm and concise tone,
   honesty about not having internet access, and safety rules. In Arabic she speaks about
   herself with feminine grammar.
 - Context window set to **4096 tokens**, replies capped at **1024 tokens**.
