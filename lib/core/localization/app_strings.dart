@@ -52,6 +52,12 @@ class AppStrings {
     'سيتم حذف جميع الرسائل وبدء جلسة جديدة. لا يمكن التراجع عن ذلك.',
   );
   String get cancel => _t('Cancel', 'إلغاء');
+
+  // Message actions
+  String get copy => _t('Copy', 'نسخ');
+  String get copied => _t('Copied', 'تم النسخ');
+  String get share => _t('Share', 'مشاركة');
+
   String get clear => _t('Clear', 'مسح');
 
   // Empty chat
