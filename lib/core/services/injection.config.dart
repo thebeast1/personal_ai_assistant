@@ -39,6 +39,7 @@ import '../../features/weather/domain/use_cases/get_current_weather_use_case.dar
     as _i664;
 import '../../features/weather/domain/use_cases/get_local_weather_use_case.dart'
     as _i576;
+import '../../features/weather/tool/get_local_weather_tool.dart' as _i329;
 import '../../features/weather/tool/get_weather_tool.dart' as _i663;
 import '../network/web_service/dio_impl.dart' as _i1033;
 import '../network/web_service/network_helper.dart' as _i873;
@@ -95,8 +96,16 @@ extension GetItInjectableX on _i174.GetIt {
         getCurrentWeatherUseCase: gh<_i664.GetCurrentWeatherUseCase>(),
       ),
     );
+    gh.factory<_i329.GetLocalWeatherTool>(
+      () => _i329.GetLocalWeatherTool(
+        getLocalWeatherUseCase: gh<_i576.GetLocalWeatherUseCase>(),
+      ),
+    );
     gh.lazySingleton<_i258.ToolRegistry>(
-      () => toolsInjection.toolRegistry(gh<_i663.GetWeatherTool>()),
+      () => toolsInjection.toolRegistry(
+        gh<_i663.GetWeatherTool>(),
+        gh<_i329.GetLocalWeatherTool>(),
+      ),
     );
     gh.lazySingleton<_i665.ChatDataSource>(
       () => _i665.ChatDataSourceImpl(toolRegistry: gh<_i258.ToolRegistry>()),
