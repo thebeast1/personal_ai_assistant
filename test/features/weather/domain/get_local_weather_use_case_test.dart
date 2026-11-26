@@ -8,7 +8,6 @@ import 'package:personal_ai_assistant/features/location/domain/use_cases/get_cur
 import 'package:personal_ai_assistant/features/weather/data/models/geo_location_model.dart';
 import 'package:personal_ai_assistant/features/weather/data/models/weather_model.dart';
 import 'package:personal_ai_assistant/features/weather/domain/enums/weather_condition.dart';
-import 'package:personal_ai_assistant/features/weather/domain/enums/weather_source.dart';
 import 'package:personal_ai_assistant/features/weather/domain/params/get_weather_params.dart';
 import 'package:personal_ai_assistant/features/weather/domain/repositories/weather_repository.dart';
 import 'package:personal_ai_assistant/features/weather/domain/use_cases/get_local_weather_use_case.dart';
@@ -68,37 +67,26 @@ void main() {
 
     final result = await useCase(const NoParams());
 
-    final local = result.getOrElse(() => throw 'expected Right');
-    expect(local.source, WeatherSource.currentLocation);
-    expect(local.weather, weather);
+    expect(result.getOrElse(() => throw 'expected Right'), weather);
     expect(asked?.latitude, 30.1);
     expect(asked?.longitude, 31.2);
     expect(asked?.name, 'Giza');
-    verifyNever(() => repository.getCurrentWeather(params: any(named: 'params')));
   });
 
-  test('without a location: weather for Cairo', () async {
+  test('without a location: LocationFailure, and no city is guessed',
+      () async {
     when(
       () => getLocation(any()),
     ).thenAnswer((_) async => Left(LocationFailure()));
-    GetWeatherParams? asked;
-    when(
-      () => repository.getCurrentWeather(params: any(named: 'params')),
-    ).thenAnswer((call) async {
-      asked = call.namedArguments[#params] as GetWeatherParams;
-      return const Right(weather);
-    });
 
     final result = await useCase(const NoParams());
 
-    expect(asked?.city, 'Cairo');
-    expect(
-      result.getOrElse(() => throw 'expected Right').source,
-      WeatherSource.defaultCity,
-    );
+    expect(result.fold((f) => f, (_) => null), isA<LocationFailure>());
+    verifyNever(() => repository.getCurrentWeather(params: any(named: 'params')));
+    verifyNever(() => repository.getWeatherForPlace(place: any(named: 'place')));
   });
 
-  test('location OK but no internet: the failure, no Cairo retry', () async {
+  test('location OK but no internet: the failure', () async {
     when(() => getLocation(any())).thenAnswer((_) async => const Right(giza));
     when(
       () => repository.getWeatherForPlace(place: any(named: 'place')),
@@ -107,24 +95,5 @@ void main() {
     final result = await useCase(const NoParams());
 
     expect(result.fold((f) => f, (_) => null), isA<NetworkFailure>());
-    verifyNever(() => repository.getCurrentWeather(params: any(named: 'params')));
-  });
-
-  test('no location and Cairo fails: the failure', () async {
-    when(
-      () => getLocation(any()),
-    ).thenAnswer((_) async => Left(LocationFailure()));
-    when(
-      () => repository.getCurrentWeather(params: any(named: 'params')),
-    ).thenAnswer((_) async => Left(ServerFailure()));
-
-    final result = await useCase(const NoParams());
-
-    expect(result.fold((f) => f, (_) => null), isA<ServerFailure>());
-  });
-
-  test('WeatherSource names sent to the model', () {
-    expect(WeatherSource.currentLocation.apiName, 'current_location');
-    expect(WeatherSource.defaultCity.apiName, 'default_city');
   });
 }

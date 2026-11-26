@@ -2,9 +2,6 @@ abstract final class AppConstants {
   static String gemmaURL =
       'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
 
-  /// Used by the local weather tool when the user's location isn't available.
-  static const String defaultWeatherCity = 'Cairo';
-
   /// The assistant's name, as shown in the app and given to the model.
   static const String assistantNameEn = 'Khadeja';
   static const String assistantNameAr = 'خديچة';
@@ -36,6 +33,7 @@ You are $assistantNameEn ($assistantNameAr in Arabic), a friendly personal assis
 - If you don't know something or aren't sure, say so honestly. Never invent facts.
 - You can use the tools you are given. For anything a tool does not cover, you have no real-time information (news, prices, the current date).
 - When a tool returns an error, tell the user briefly and simply what went wrong.
+- If get_local_weather says the location is unavailable, ask the user which city they are in, then call get_weather with their answer.
 - Do not repeat the question back or add filler like "Great question!".
 
 # Safety

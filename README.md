@@ -118,7 +118,7 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
 - **`get_local_weather`**: the weather where you are, when you ask without naming a city.
   Location permission is asked **the first time you ask**, never at startup. Only lat/lng go
   to Open-Meteo; the place name comes from the phone's own geocoder. If the location isn't
-  available (denied, off, or slow), she uses **Cairo** and tells you so.
+  available (denied, off, or slow), she **asks which city you're in** and looks that up.
 - Errors (no internet, unknown city) come back to Gemma, which explains them in the chat.
 
 ### 📥 First-run model download
@@ -327,7 +327,7 @@ flutter drive -d <device-id> \
 - [ ] Stop-generation button
 - [x] Dark theme (follows the system setting)
 - [x] Function calling (tools): weather by city and for your location
-- [ ] Ask for your city when the location isn't available, instead of using Cairo
+- [x] Ask for your city when the location isn't available
 
 ## Acknowledgements
 

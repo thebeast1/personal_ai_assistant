@@ -136,7 +136,13 @@ The place name comes from the phone's own geocoder. The README says so.
   - "weather in London" → London
   - location services off → Cairo
 
-## Future: step two (not built now)
+## Step two: ask for the city ✅ BUILT (2026-11-26)
+
+Built as described in points 1–3 below. The Cairo fallback, `WeatherSource`,
+`LocalWeatherResult` and `AppConstants.defaultWeatherCity` were removed:
+`GetLocalWeatherUseCase` now returns `Either<Failure, WeatherModel>`, and the
+system prompt tells Gemma to ask for the city on `location_unavailable`.
+Point 4 (remembering the city) is not built.
 
 Replace the Cairo placeholder with the user's own city when the location
 can't be read:
