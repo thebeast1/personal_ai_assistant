@@ -84,6 +84,7 @@ class _DraftReply extends StatelessWidget {
           : MessageBubble(
               key: const ValueKey('draft'),
               message: Message(text: draft, isUser: false),
+              showActions: false,
             ),
     );
   }

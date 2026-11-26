@@ -104,6 +104,10 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
   vice versa.
 - **Localized launcher name** — *خديچة* on Arabic devices, *Khadeja* elsewhere.
 
+### 📋 Copy and share
+- **Copy** and **Share** buttons under every message. Share opens the phone's share sheet
+  (WhatsApp, Telegram, …). Khadeja's replies are shared without markdown symbols.
+
 ### 🤖 Assistant persona
 - A short, structured **system prompt**: her name (*Khadeja / خديچة*), a warm and concise tone,
   how to use her tools, honesty about what she can't know, and safety rules. In Arabic she speaks about
@@ -217,6 +221,7 @@ The full design is in [`docs/ai-tools-architecture-design/architecture-design.md
 | Weather API | [Open-Meteo](https://open-meteo.com) (no key) |
 | Location | [`geolocator`](https://pub.dev/packages/geolocator), [`geocoding`](https://pub.dev/packages/geocoding) |
 | Storage | [`shared_preferences`](https://pub.dev/packages/shared_preferences) |
+| Sharing | [`share_plus`](https://pub.dev/packages/share_plus) |
 | Media | [`image_picker`](https://pub.dev/packages/image_picker), [`record`](https://pub.dev/packages/record) |
 | Permissions | [`permission_handler`](https://pub.dev/packages/permission_handler) |
 | Branding (dev) | [`flutter_launcher_icons`](https://pub.dev/packages/flutter_launcher_icons), [`flutter_native_splash`](https://pub.dev/packages/flutter_native_splash) |
