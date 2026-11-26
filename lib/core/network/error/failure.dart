@@ -30,3 +30,8 @@ class LocationFailure extends Failure {
   @override
   String get message => 'The location is not available.';
 }
+
+class CacheFailure extends Failure {
+  @override
+  String get message => 'Could not save the setting.';
+}

@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterEdgeAi.initialize(inferenceEngines: [LiteRtLmEngine()]);
-  configureInjection();
+  await configureInjection();
 
   // Loaded before runApp so the first frame already uses the saved language.
   final prefs = await SharedPreferencesWithCache.create(

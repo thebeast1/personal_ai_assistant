@@ -19,7 +19,7 @@ final sl = GetIt.instance;
   preferRelativeImports: true, // default
   asExtension: true, // default
 )
-void configureInjection() => sl.init();
+Future<void> configureInjection() => sl.init();
 
 /// The toolbox. This is the one place that knows every tool: add a feature's
 /// tool to the list and its card to the map.
