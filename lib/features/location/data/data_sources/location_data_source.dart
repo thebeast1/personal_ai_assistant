@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
@@ -46,9 +47,11 @@ class LocationDataSourceImpl implements LocationDataSource {
       throw const LocationUnavailableException('Timed out');
     }
 
-    final (name, country) = await _placeName(
-      position.latitude,
-      position.longitude,
+    final (name, country) = await placeNameFrom(
+      () => Geocoding().placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      ),
     );
     return LocationModel(
       latitude: position.latitude,
@@ -57,25 +60,29 @@ class LocationDataSourceImpl implements LocationDataSource {
       country: country,
     );
   }
+}
 
-  /// Reverse geocoding is a nice-to-have: on any failure the coordinates are
-  /// still used, with no name.
-  Future<(String, String)> _placeName(double latitude, double longitude) async {
-    try {
-      final placemarks = await Geocoding().placemarkFromCoordinates(
-        latitude,
-        longitude,
-      );
-      if (placemarks.isEmpty) return ('', '');
-      final place = placemarks.first;
-      final name = [
-        place.locality,
-        place.subAdministrativeArea,
-        place.administrativeArea,
-      ].firstWhere((s) => s != null && s.isNotEmpty, orElse: () => '');
-      return (name ?? '', place.country ?? '');
-    } catch (_) {
-      return ('', '');
-    }
+/// Turns the phone geocoder's answer into `(name, country)`.
+///
+/// Reverse geocoding is a nice-to-have and sits on the reply's path, so it
+/// gets a [timeout]: on a slow or silent geocoder, an error or no result, the
+/// coordinates are still used, with no name.
+@visibleForTesting
+Future<(String, String)> placeNameFrom(
+  Future<List<Placemark>> Function() lookup, {
+  Duration timeout = const Duration(seconds: 3),
+}) async {
+  try {
+    final placemarks = await lookup().timeout(timeout);
+    if (placemarks.isEmpty) return ('', '');
+    final place = placemarks.first;
+    final name = [
+      place.locality,
+      place.subAdministrativeArea,
+      place.administrativeArea,
+    ].firstWhere((s) => s != null && s.isNotEmpty, orElse: () => '');
+    return (name ?? '', place.country ?? '');
+  } catch (_) {
+    return ('', '');
   }
 }
