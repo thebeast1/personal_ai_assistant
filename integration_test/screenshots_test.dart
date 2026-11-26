@@ -19,7 +19,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:personal_ai_assistant/core/localization/app_strings.dart';
-import 'package:personal_ai_assistant/core/localization/locale_provider.dart';
+import 'package:personal_ai_assistant/features/app_settings/presentation/provider/app_settings_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/chat_screen.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_composer_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_provider.dart';
@@ -58,8 +58,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        locale: LocaleProvider.english,
-        supportedLocales: LocaleProvider.supportedLocales,
+        locale: const Locale('en'),
+        supportedLocales: AppSettingsProvider.supportedLocales,
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
         home: Scaffold(

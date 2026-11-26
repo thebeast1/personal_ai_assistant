@@ -1,6 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../features/app_settings/tool/change_language_tool.dart';
+import '../../features/app_settings/tool/change_theme_tool.dart';
+import '../../features/time/tool/get_current_time_tool.dart';
 import '../../features/weather/presentation/widgets/weather_card.dart';
 import '../../features/weather/tool/get_local_weather_tool.dart';
 import '../../features/weather/tool/get_weather_tool.dart';
@@ -18,7 +21,7 @@ final sl = GetIt.instance;
   preferRelativeImports: true, // default
   asExtension: true, // default
 )
-void configureInjection() => sl.init();
+Future<void> configureInjection() => sl.init();
 
 /// The toolbox. This is the one place that knows every tool: add a feature's
 /// tool to the list and its card to the map.
@@ -28,7 +31,16 @@ abstract class ToolsInjection {
   ToolRegistry toolRegistry(
     GetWeatherTool getWeatherTool,
     GetLocalWeatherTool getLocalWeatherTool,
-  ) => ToolRegistry([getWeatherTool, getLocalWeatherTool]);
+    GetCurrentTimeTool getCurrentTimeTool,
+    ChangeLanguageTool changeLanguageTool,
+    ChangeThemeTool changeThemeTool,
+  ) => ToolRegistry([
+    getWeatherTool,
+    getLocalWeatherTool,
+    getCurrentTimeTool,
+    changeLanguageTool,
+    changeThemeTool,
+  ]);
 
   @lazySingleton
   ToolResultViews get toolResultViews => ToolResultViews({
