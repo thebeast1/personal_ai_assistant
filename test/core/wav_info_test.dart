@@ -15,7 +15,9 @@ Uint8List _wav(Duration length) {
   }
   final header = ByteData(44);
   void tag(int o, String s) {
-    for (var i = 0; i < 4; i++) header.setUint8(o + i, s.codeUnitAt(i));
+    for (var i = 0; i < 4; i++) {
+      header.setUint8(o + i, s.codeUnitAt(i));
+    }
   }
   tag(0, 'RIFF');
   header.setUint32(4, 36 + frames * 2, Endian.little);

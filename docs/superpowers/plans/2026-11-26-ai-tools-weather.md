@@ -105,6 +105,21 @@ its `WeatherCard` in `ToolsInjection`, update the system prompt and the README.
 
 ---
 
+### Weather (Tasks 2, 3 and the rest of 5) ✅ DONE (2026-11-26)
+
+Built in mismar style. There's no `Weather` entity: the domain returns `WeatherModel`, as the Conventions allow.
+- `core/network/web_service/api_endpoints.dart` (Open-Meteo URLs)
+- `features/weather/domain/`: `enums/weather_condition.dart` (`fromWmoCode`, `fromName`), `params/get_weather_params.dart` (`city`, `language` en/ar, `toJson()` query), `repositories/weather_repository.dart`, `use_cases/get_current_weather_use_case.dart`
+- `features/weather/data/`: `models/geo_location_model.dart`, `models/weather_model.dart` (`fromApiJson`, `toJson` = tool result, `fromJson`), `data_sources/weather_remote_data_source.dart` (`NetworkHelper`, `NotFoundException` when there are no `results`), `repositories/weather_repository_impl.dart`
+- `features/weather/tool/get_weather_tool.dart` (`@injectable`) and `presentation/widgets/weather_card.dart`
+- `AppStrings`: `feelsLike`, `humidity`, `wind`, `kmPerHour`, `weatherCondition(name)`
+- Registered in `ToolsInjection`. System prompt and README updated.
+- Tests: models, data source, repository, tool and card (48 in total, all passing)
+
+**Remaining:** Task 6, the on-device check.
+
+---
+
 ### Task 2: Weather domain and data layers
 
 **Files:**
