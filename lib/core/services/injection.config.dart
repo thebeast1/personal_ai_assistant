@@ -37,6 +37,8 @@ import '../../features/weather/domain/repositories/weather_repository.dart'
     as _i956;
 import '../../features/weather/domain/use_cases/get_current_weather_use_case.dart'
     as _i664;
+import '../../features/weather/domain/use_cases/get_local_weather_use_case.dart'
+    as _i576;
 import '../../features/weather/tool/get_weather_tool.dart' as _i663;
 import '../network/web_service/dio_impl.dart' as _i1033;
 import '../network/web_service/network_helper.dart' as _i873;
@@ -79,6 +81,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i664.GetCurrentWeatherUseCase>(
       () => _i664.GetCurrentWeatherUseCase(
+        weatherRepository: gh<_i956.WeatherRepository>(),
+      ),
+    );
+    gh.factory<_i576.GetLocalWeatherUseCase>(
+      () => _i576.GetLocalWeatherUseCase(
+        getCurrentLocationUseCase: gh<_i31.GetCurrentLocationUseCase>(),
         weatherRepository: gh<_i956.WeatherRepository>(),
       ),
     );

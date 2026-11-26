@@ -2,6 +2,9 @@ abstract final class AppConstants {
   static String gemmaURL =
       'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
 
+  /// Used by the local weather tool when the user's location isn't available.
+  static const String defaultWeatherCity = 'Cairo';
+
   /// The assistant's name, as shown in the app and given to the model.
   static const String assistantNameEn = 'Khadeja';
   static const String assistantNameAr = 'خديچة';

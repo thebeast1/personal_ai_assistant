@@ -86,4 +86,30 @@ void main() {
   test('anything else becomes ServerFailure', () async {
     expect(await failureFor(const FormatException('bad')), isA<ServerFailure>());
   });
+
+  group('getWeatherForPlace', () {
+    test('gets the weather for the given coordinates', () async {
+      when(
+        () => remote.getCurrentWeather(place: place),
+      ).thenAnswer((_) async => weather);
+
+      final result = await repository.getWeatherForPlace(place: place);
+
+      expect(result.getOrElse(() => throw 'expected Right'), weather);
+      verifyNever(() => remote.searchCity(params: any(named: 'params')));
+    });
+
+    test('no internet becomes NetworkFailure', () async {
+      when(() => remote.getCurrentWeather(place: place)).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(),
+          type: DioExceptionType.connectionError,
+        ),
+      );
+
+      final result = await repository.getWeatherForPlace(place: place);
+
+      expect(result.fold((f) => f, (_) => null), isA<NetworkFailure>());
+    });
+  });
 }
