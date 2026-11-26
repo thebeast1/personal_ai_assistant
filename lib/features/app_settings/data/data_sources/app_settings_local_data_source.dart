@@ -17,7 +17,7 @@ abstract class AppSettingsLocalDataSource {
 class AppSettingsLocalDataSourceImpl implements AppSettingsLocalDataSource {
   AppSettingsLocalDataSourceImpl(this._prefs);
 
-  /// Same key `LocaleProvider` used, so a saved language carries over.
+  /// The key the old language setting used, so a saved language carries over.
   static const languageKey = 'app_language';
   static const themeModeKey = 'theme_mode';
 
