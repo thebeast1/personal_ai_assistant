@@ -115,6 +115,10 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
 - **`get_weather`**: current weather for a city, from [Open-Meteo](https://open-meteo.com)
   (free, no API key). Only the city name is sent. A weather card appears above her reply,
   in English or Arabic.
+- **`get_local_weather`**: the weather where you are, when you ask without naming a city.
+  Location permission is asked **the first time you ask**, never at startup. Only lat/lng go
+  to Open-Meteo; the place name comes from the phone's own geocoder. If the location isn't
+  available (denied, off, or slow), she uses **Cairo** and tells you so.
 - Errors (no internet, unknown city) come back to Gemma, which explains them in the chat.
 
 ### 📥 First-run model download
@@ -176,10 +180,11 @@ lib/
     │   ├── data/                     # ChatDataSource (only file using flutter_edge_ai), tool loop
     │   ├── domain/                   # ChatEvent, ChatEntry, repository, use cases
     │   └── presentation/             # Screen, providers, bubbles, input bar, tool cards
-    └── weather/                      # One tool = one feature
+    ├── location/                     # Current lat/lng + place name (geolocator, geocoding)
+    └── weather/                      # One tool feature: get_weather + get_local_weather
         ├── data/                     # Open-Meteo data source, models, repository
         ├── domain/                   # Params, repository, GetCurrentWeatherUseCase
-        ├── tool/get_weather_tool.dart  # Schema for Gemma + args → use case → result
+        ├── tool/                     # get_weather, get_local_weather: schema + args → use case
         └── presentation/widgets/weather_card.dart
 
 assets/
@@ -210,6 +215,7 @@ The full design is in [`docs/ai-tools-architecture-design/architecture-design.md
 | DI | [`get_it`](https://pub.dev/packages/get_it), [`injectable`](https://pub.dev/packages/injectable) |
 | Network | [`dio`](https://pub.dev/packages/dio), [`pretty_dio_logger`](https://pub.dev/packages/pretty_dio_logger), [`dartz`](https://pub.dev/packages/dartz) |
 | Weather API | [Open-Meteo](https://open-meteo.com) (no key) |
+| Location | [`geolocator`](https://pub.dev/packages/geolocator), [`geocoding`](https://pub.dev/packages/geocoding) |
 | Storage | [`shared_preferences`](https://pub.dev/packages/shared_preferences) |
 | Media | [`image_picker`](https://pub.dev/packages/image_picker), [`record`](https://pub.dev/packages/record) |
 | Permissions | [`permission_handler`](https://pub.dev/packages/permission_handler) |
@@ -243,13 +249,15 @@ Already configured in this repo — listed here for reference.
 **Android** (`android/app/src/main/AndroidManifest.xml`, `build.gradle.kts`)
 - `minSdk = 30` (required by LiteRT-LM).
 - `INTERNET` for the model download and online tools (also in release builds).
+- `ACCESS_COARSE_LOCATION` for `get_local_weather` (asked only when it runs).
 - `CAMERA`, `RECORD_AUDIO`, and photo access (`READ_MEDIA_IMAGES`,
   `READ_MEDIA_VISUAL_USER_SELECTED`, `READ_EXTERNAL_STORAGE` up to API 32).
 - GPU/NPU native-library entries merge in automatically from the plugin.
 
 **iOS** (`ios/Runner/Info.plist`, `Runner.entitlements`)
 - Deployment target **15.0**.
-- `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSMicrophoneUsageDescription`.
+- `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSMicrophoneUsageDescription`,
+  `NSLocationWhenInUseUsageDescription`.
 - Increased-memory and extended-virtual-addressing entitlements for the large model
   (needs a paid Apple developer account; remove them for free provisioning).
 - Localized display name in `en.lproj` / `ar.lproj` `InfoPlist.strings`.
@@ -318,6 +326,8 @@ flutter drive -d <device-id> \
 - [ ] Save conversations between launches
 - [ ] Stop-generation button
 - [x] Dark theme (follows the system setting)
+- [x] Function calling (tools): weather by city and for your location
+- [ ] Ask for your city when the location isn't available, instead of using Cairo
 
 ## Acknowledgements
 

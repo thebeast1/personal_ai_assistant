@@ -25,3 +25,8 @@ class NotFoundFailure extends Failure {
   @override
   String get message => error ?? 'Nothing was found.';
 }
+
+class LocationFailure extends Failure {
+  @override
+  String get message => 'The location is not available.';
+}

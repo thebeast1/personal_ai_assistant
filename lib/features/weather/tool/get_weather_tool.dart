@@ -1,11 +1,11 @@
 import 'package:flutter_edge_ai/flutter_edge_ai.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../core/network/error/failure.dart';
 import '../../../core/tools/app_tool.dart';
 import '../../../core/tools/tool_result.dart';
 import '../domain/params/get_weather_params.dart';
 import '../domain/use_cases/get_current_weather_use_case.dart';
+import 'weather_failure_code.dart';
 
 /// Lets Gemma look up the current weather. The bridge between the model and
 /// the weather feature: validates the model's arguments, calls the use case
@@ -22,8 +22,8 @@ class GetWeatherTool extends AppTool {
   Tool get definition => const Tool(
     name: toolName,
     description:
-        'Get the current weather for a city. Use when the user asks '
-        'about weather, temperature or whether to take an umbrella.',
+        'Get the current weather for a city the user names. Use only when '
+        'the user mentions a specific city.',
     parameters: {
       'type': 'object',
       'properties': {
@@ -51,14 +51,11 @@ class GetWeatherTool extends AppTool {
       GetWeatherParams(city: city.trim()),
     );
     return result.fold(
-      (failure) => ToolFailure(code: _code(failure), message: failure.message),
+      (failure) => ToolFailure(
+        code: weatherFailureCode(failure),
+        message: failure.message,
+      ),
       (weather) => ToolSuccess(weather.toJson()),
     );
   }
-
-  String _code(Failure failure) => switch (failure) {
-    NotFoundFailure() => 'city_not_found',
-    NetworkFailure() => 'no_internet',
-    _ => 'service_unavailable',
-  };
 }

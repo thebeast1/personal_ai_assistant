@@ -54,6 +54,17 @@ void main() {
       expect(failure.message, 'No city called Blorptown');
     });
 
+    test('location exceptions become LocationFailure', () {
+      expect(
+        ErrorHandler.handle(const LocationPermissionDeniedException()).failure,
+        isA<LocationFailure>(),
+      );
+      expect(
+        ErrorHandler.handle(const LocationUnavailableException()).failure,
+        isA<LocationFailure>(),
+      );
+    });
+
     test('anything else becomes ServerFailure', () {
       expect(
         ErrorHandler.handle(const FormatException('bad json')).failure,
@@ -66,6 +77,7 @@ void main() {
         ServerFailure(),
         NetworkFailure(),
         NotFoundFailure(),
+        LocationFailure(),
       ]) {
         expect(failure.message, isNotEmpty);
       }

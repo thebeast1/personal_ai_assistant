@@ -48,6 +48,8 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^9.3.0
   injectable: ^3.0.0
+  geolocator: ^14.0.1
+  geocoding: ^5.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

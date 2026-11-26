@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../features/weather/presentation/widgets/weather_card.dart';
+import '../../features/weather/tool/get_local_weather_tool.dart';
 import '../../features/weather/tool/get_weather_tool.dart';
 import '../tools/tool_registry.dart';
 import '../tools/tool_result_views.dart';
@@ -24,11 +25,14 @@ void configureInjection() => sl.init();
 @module
 abstract class ToolsInjection {
   @lazySingleton
-  ToolRegistry toolRegistry(GetWeatherTool getWeatherTool) =>
-      ToolRegistry([getWeatherTool]);
+  ToolRegistry toolRegistry(
+    GetWeatherTool getWeatherTool,
+    GetLocalWeatherTool getLocalWeatherTool,
+  ) => ToolRegistry([getWeatherTool, getLocalWeatherTool]);
 
   @lazySingleton
   ToolResultViews get toolResultViews => ToolResultViews({
     GetWeatherTool.toolName: (context, data) => WeatherCard(data: data),
+    GetLocalWeatherTool.toolName: (context, data) => WeatherCard(data: data),
   });
 }
