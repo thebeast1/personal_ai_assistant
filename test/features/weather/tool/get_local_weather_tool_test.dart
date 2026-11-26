@@ -5,9 +5,7 @@ import 'package:personal_ai_assistant/core/network/error/failure.dart';
 import 'package:personal_ai_assistant/core/tools/tool_result.dart';
 import 'package:personal_ai_assistant/core/use_cases/use_cases.dart';
 import 'package:personal_ai_assistant/features/weather/data/models/weather_model.dart';
-import 'package:personal_ai_assistant/features/weather/domain/entities/local_weather_result.dart';
 import 'package:personal_ai_assistant/features/weather/domain/enums/weather_condition.dart';
-import 'package:personal_ai_assistant/features/weather/domain/enums/weather_source.dart';
 import 'package:personal_ai_assistant/features/weather/domain/use_cases/get_local_weather_use_case.dart';
 import 'package:personal_ai_assistant/features/weather/tool/get_local_weather_tool.dart';
 
@@ -34,33 +32,32 @@ void main() {
     tool = GetLocalWeatherTool(getLocalWeatherUseCase: useCase);
   });
 
-  void answer(WeatherSource source) => when(() => useCase(any())).thenAnswer(
-    (_) async => Right(LocalWeatherResult(weather: weather, source: source)),
-  );
-
   test('the definition takes no arguments', () {
     expect(tool.name, 'get_local_weather');
     expect(tool.definition.parameters['required'], isEmpty);
   });
 
-  test('current location: the weather map plus its source', () async {
-    answer(WeatherSource.currentLocation);
+  test('success returns the weather map', () async {
+    when(() => useCase(any())).thenAnswer((_) async => const Right(weather));
 
     final result = await tool.execute({}) as ToolSuccess;
 
-    expect(result.data, {...weather.toJson(), 'source': 'current_location'});
+    expect(result.data, weather.toJson());
   });
 
-  test('default city: says so in the source', () async {
-    answer(WeatherSource.defaultCity);
+  test('no location tells Gemma to ask for the city', () async {
+    when(
+      () => useCase(any()),
+    ).thenAnswer((_) async => Left(LocationFailure()));
 
-    final result = await tool.execute({}) as ToolSuccess;
+    final result = await tool.execute({}) as ToolFailure;
 
-    expect(result.data['source'], 'default_city');
-    expect(result.data['city'], 'Giza');
+    expect(result.code, 'location_unavailable');
+    expect(result.message, contains('Ask the user'));
+    expect(result.message, contains('get_weather'));
   });
 
-  test('failures become the same codes as get_weather', () async {
+  test('other failures keep the get_weather codes', () async {
     final cases = <Failure, String>{
       NetworkFailure(): 'no_internet',
       NotFoundFailure(): 'city_not_found',
@@ -74,11 +71,10 @@ void main() {
   });
 
   test('extra arguments from the model are ignored', () async {
-    answer(WeatherSource.currentLocation);
+    when(() => useCase(any())).thenAnswer((_) async => const Right(weather));
 
-    await tool.execute({});
     await tool.execute({'city': 'ignored'});
 
-    verify(() => useCase(any())).called(2);
+    verify(() => useCase(any())).called(1);
   });
 }
