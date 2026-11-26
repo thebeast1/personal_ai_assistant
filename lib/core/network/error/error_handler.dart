@@ -15,6 +15,9 @@ class ErrorHandler implements Exception {
       failure = _handleError(error);
     } else if (error is NotFoundException) {
       failure = NotFoundFailure(error: error.message);
+    } else if (error is LocationPermissionDeniedException ||
+        error is LocationUnavailableException) {
+      failure = LocationFailure();
     } else {
       failure = ServerFailure();
     }

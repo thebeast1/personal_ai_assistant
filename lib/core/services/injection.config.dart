@@ -21,6 +21,14 @@ import '../../features/chat/domain/use_cases/clear_chat_use_case.dart' as _i417;
 import '../../features/chat/domain/use_cases/init_chat_use_case.dart' as _i14;
 import '../../features/chat/domain/use_cases/send_message_use_case.dart'
     as _i460;
+import '../../features/location/data/data_sources/location_data_source.dart'
+    as _i396;
+import '../../features/location/data/repositories/location_repository_impl.dart'
+    as _i115;
+import '../../features/location/domain/repositories/location_repository.dart'
+    as _i332;
+import '../../features/location/domain/use_cases/get_current_location_use_case.dart'
+    as _i31;
 import '../../features/weather/data/data_sources/weather_remote_data_source.dart'
     as _i1054;
 import '../../features/weather/data/repositories/weather_repository_impl.dart'
@@ -48,9 +56,20 @@ extension GetItInjectableX on _i174.GetIt {
       () => toolsInjection.toolResultViews,
     );
     gh.lazySingleton<_i873.NetworkHelper>(() => _i1033.DioImpl());
+    gh.factory<_i396.LocationDataSource>(() => _i396.LocationDataSourceImpl());
+    gh.factory<_i332.LocationRepository>(
+      () => _i115.LocationRepositoryImpl(
+        locationDataSource: gh<_i396.LocationDataSource>(),
+      ),
+    );
     gh.factory<_i1054.WeatherRemoteDataSource>(
       () => _i1054.WeatherRemoteDataSourceImpl(
         networkHelper: gh<_i873.NetworkHelper>(),
+      ),
+    );
+    gh.factory<_i31.GetCurrentLocationUseCase>(
+      () => _i31.GetCurrentLocationUseCase(
+        locationRepository: gh<_i332.LocationRepository>(),
       ),
     );
     gh.factory<_i956.WeatherRepository>(
