@@ -18,7 +18,7 @@ import '../../features/chat/data/repositories/chat_repository_impl.dart'
     as _i504;
 import '../../features/chat/domain/repositories/chat_repository.dart' as _i420;
 import '../../features/chat/domain/use_cases/clear_chat_use_case.dart' as _i417;
-import '../../features/chat/domain/use_cases/init_chat_use_case.dart' as _i14;
+import '../../features/chat/domain/use_cases/init_chat_use_case.dart' as _i15;
 import '../../features/chat/domain/use_cases/send_message_use_case.dart'
     as _i460;
 import '../../features/location/data/data_sources/location_data_source.dart'
@@ -29,6 +29,9 @@ import '../../features/location/domain/repositories/location_repository.dart'
     as _i332;
 import '../../features/location/domain/use_cases/get_current_location_use_case.dart'
     as _i31;
+import '../../features/time/domain/use_cases/get_current_time_use_case.dart'
+    as _i248;
+import '../../features/time/tool/get_current_time_tool.dart' as _i14;
 import '../../features/weather/data/data_sources/weather_remote_data_source.dart'
     as _i1054;
 import '../../features/weather/data/repositories/weather_repository_impl.dart'
@@ -55,11 +58,19 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final toolsInjection = _$ToolsInjection();
+    gh.factory<_i248.GetCurrentTimeUseCase>(
+      () => _i248.GetCurrentTimeUseCase(),
+    );
     gh.lazySingleton<_i476.ToolResultViews>(
       () => toolsInjection.toolResultViews,
     );
     gh.lazySingleton<_i873.NetworkHelper>(() => _i1033.DioImpl());
     gh.factory<_i396.LocationDataSource>(() => _i396.LocationDataSourceImpl());
+    gh.factory<_i14.GetCurrentTimeTool>(
+      () => _i14.GetCurrentTimeTool(
+        getCurrentTimeUseCase: gh<_i248.GetCurrentTimeUseCase>(),
+      ),
+    );
     gh.factory<_i332.LocationRepository>(
       () => _i115.LocationRepositoryImpl(
         locationDataSource: gh<_i396.LocationDataSource>(),
@@ -105,6 +116,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => toolsInjection.toolRegistry(
         gh<_i663.GetWeatherTool>(),
         gh<_i329.GetLocalWeatherTool>(),
+        gh<_i14.GetCurrentTimeTool>(),
       ),
     );
     gh.lazySingleton<_i665.ChatDataSource>(
@@ -117,8 +129,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i417.ClearChatUseCase>(
       () => _i417.ClearChatUseCase(chatRepository: gh<_i420.ChatRepository>()),
     );
-    gh.factory<_i14.InitChatUseCase>(
-      () => _i14.InitChatUseCase(chatRepository: gh<_i420.ChatRepository>()),
+    gh.factory<_i15.InitChatUseCase>(
+      () => _i15.InitChatUseCase(chatRepository: gh<_i420.ChatRepository>()),
     );
     gh.factory<_i460.SendMessageUseCase>(
       () =>

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../features/time/tool/get_current_time_tool.dart';
 import '../../features/weather/presentation/widgets/weather_card.dart';
 import '../../features/weather/tool/get_local_weather_tool.dart';
 import '../../features/weather/tool/get_weather_tool.dart';
@@ -28,7 +29,8 @@ abstract class ToolsInjection {
   ToolRegistry toolRegistry(
     GetWeatherTool getWeatherTool,
     GetLocalWeatherTool getLocalWeatherTool,
-  ) => ToolRegistry([getWeatherTool, getLocalWeatherTool]);
+    GetCurrentTimeTool getCurrentTimeTool,
+  ) => ToolRegistry([getWeatherTool, getLocalWeatherTool, getCurrentTimeTool]);
 
   @lazySingleton
   ToolResultViews get toolResultViews => ToolResultViews({
