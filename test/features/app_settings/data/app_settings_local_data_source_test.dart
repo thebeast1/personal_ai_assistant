@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:personal_ai_assistant/features/app_settings/data/data_sources/app_settings_local_data_source.dart';
@@ -48,5 +50,21 @@ void main() {
 
     verify(() => prefs.setString('app_language', 'ar')).called(1);
     verify(() => prefs.setString('theme_mode', 'light')).called(1);
+  });
+
+  group('deviceLanguage', () {
+    AppLanguage of(List<Locale> locales) => AppSettingsLocalDataSourceImpl(
+      prefs,
+      deviceLocales: () => locales,
+    ).deviceLanguage();
+
+    test('is the first supported language in the phone list', () {
+      expect(of(const [Locale('fr'), Locale('ar', 'EG')]), AppLanguage.ar);
+    });
+
+    test('falls back to English', () {
+      expect(of(const [Locale('fr')]), AppLanguage.en);
+      expect(of(const []), AppLanguage.en);
+    });
   });
 }

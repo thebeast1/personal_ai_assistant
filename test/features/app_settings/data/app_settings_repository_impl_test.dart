@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -23,6 +25,7 @@ void main() {
     dataSource = _MockDataSource();
     when(() => dataSource.read())
         .thenReturn(const AppSettings(themeMode: AppThemeMode.dark));
+    when(() => dataSource.deviceLanguage()).thenReturn(AppLanguage.en);
     when(() => dataSource.saveLanguage(any())).thenAnswer((_) async {});
     when(() => dataSource.saveThemeMode(any())).thenAnswer((_) async {});
     repository = AppSettingsRepositoryImpl(dataSource);
@@ -79,5 +82,34 @@ void main() {
     expect(repository.current.themeMode, AppThemeMode.dark);
     expect(emitted, isEmpty);
     await sub.cancel();
+  });
+
+  test('the phone language with nothing saved returns false', () async {
+    when(() => dataSource.deviceLanguage()).thenReturn(AppLanguage.ar);
+
+    final result = await repository.setLanguage(AppLanguage.ar);
+
+    expect(result, const Right<Failure, bool>(false));
+    expect(repository.current.language, isNull);
+    verifyNever(() => dataSource.saveLanguage(any()));
+  });
+
+  test('overlapping writes keep both changes', () async {
+    final slowSave = Completer<void>();
+    when(() => dataSource.saveThemeMode(any()))
+        .thenAnswer((_) => slowSave.future);
+
+    final theme = repository.setThemeMode(AppThemeMode.light);
+    final language = repository.setLanguage(AppLanguage.ar);
+    slowSave.complete();
+    await Future.wait([theme, language]);
+
+    expect(
+      repository.current,
+      const AppSettings(
+        language: AppLanguage.ar,
+        themeMode: AppThemeMode.light,
+      ),
+    );
   });
 }

@@ -28,19 +28,37 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
 
   @override
   Future<Either<Failure, bool>> setLanguage(AppLanguage language) => _update(
-    _current.copyWith(language: language),
+    (settings) =>
+        // With nothing saved the app shows the phone's language, so asking
+        // for that one changes nothing (and keeps following the phone).
+        (settings.language ?? _dataSource.deviceLanguage()) == language
+        ? settings
+        : settings.copyWith(language: language),
     () => _dataSource.saveLanguage(language),
   );
 
   @override
   Future<Either<Failure, bool>> setThemeMode(AppThemeMode mode) => _update(
-    _current.copyWith(themeMode: mode),
+    (settings) => settings.copyWith(themeMode: mode),
     () => _dataSource.saveThemeMode(mode),
   );
 
+  /// Writes run one at a time, each starting from the settings the previous
+  /// one left, so a button tap during a tool's save can't undo it.
+  Future<void> _queue = Future.value();
+
+  Future<Either<Failure, bool>> _update(
+    AppSettings Function(AppSettings) change,
+    Future<void> Function() save,
+  ) {
+    final result = _queue.then((_) => _apply(change(_current), save));
+    _queue = result;
+    return result;
+  }
+
   /// Saves first, then updates [current] and emits, so a failed save
   /// changes nothing.
-  Future<Either<Failure, bool>> _update(
+  Future<Either<Failure, bool>> _apply(
     AppSettings next,
     Future<void> Function() save,
   ) async {
