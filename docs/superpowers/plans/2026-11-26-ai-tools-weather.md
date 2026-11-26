@@ -86,6 +86,25 @@ the Conventions section: data sources take `NetworkHelper`, repositories use
 
 ---
 
+### Chat refactor (Task 4 + the chat part of Task 5) ✅ DONE (2026-11-26, done before Task 2)
+
+**Built** (mismar naming, so it differs a little from Task 4 below):
+- `features/chat/domain/entities/chat_event.dart` (`TextChunk`, `ToolExecuted`) and `chat_entry.dart` (`MessageEntry`, `ToolResultEntry`)
+- `domain/params/init_chat_params.dart` (`InitChatParams(onProgress:)`), `domain/repositories/chat_repository.dart` (`init({params})`, `send({message})` → `Stream<ChatEvent>`, `clear()`)
+- `domain/use_cases/`: `InitChatUseCase extends UseCase<Unit, InitChatParams>`, `ClearChatUseCase extends UseCase<Unit, NoParams>`, `SendMessageUseCase` (`call(Message)` → `Stream<ChatEvent>`)
+- `data/data_sources/tool_loop.dart` (`runToolLoop`, `ToolCallHandler`), `data/data_sources/chat_data_source.dart` (`ChatDataSource` + `@LazySingleton ChatDataSourceImpl`: one `_openChat()` with `tools: toolRegistry.definitions`, `supportsFunctionCalls: tools.isNotEmpty`, `maxToolTurns: 4`)
+- `data/repositories/chat_repository_impl.dart`
+- `ChatProvider` takes the use cases (defaults from `sl`, mocks in tests). `chatList` is `List<ChatEntry>`, and a successful tool adds a `ToolResultEntry`.
+- `chat_widget.dart` renders `ToolResultEntry` through `sl<ToolResultViews>()`
+- `core/services/injection.dart`: `@module ToolsInjection` with `ToolRegistry([])` and `ToolResultViews({})`. **Adding a tool means adding it here.**
+- Deleted the stale `test/widget_test.dart`
+- Tests: `test/features/chat/data/tool_loop_test.dart`, `test/features/chat/presentation/chat_provider_test.dart`
+
+**What's left of Task 5 after the weather tasks:** register `GetWeatherTool` and
+its `WeatherCard` in `ToolsInjection`, update the system prompt and the README.
+
+---
+
 ### Task 2: Weather domain and data layers
 
 **Files:**

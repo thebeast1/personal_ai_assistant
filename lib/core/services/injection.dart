@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../tools/tool_registry.dart';
+import '../tools/tool_result_views.dart';
 import 'injection.config.dart';
 
 final sl = GetIt.instance;
@@ -14,3 +16,14 @@ final sl = GetIt.instance;
   asExtension: true, // default
 )
 void configureInjection() => sl.init();
+
+/// The toolbox. This is the one place that knows every tool: add a feature's
+/// tool to the list and its card to the map.
+@module
+abstract class ToolsInjection {
+  @lazySingleton
+  ToolRegistry get toolRegistry => ToolRegistry([]);
+
+  @lazySingleton
+  ToolResultViews get toolResultViews => const ToolResultViews({});
+}
