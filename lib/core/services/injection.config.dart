@@ -24,6 +24,8 @@ import '../../features/app_settings/domain/use_cases/change_language_use_case.da
     as _i880;
 import '../../features/app_settings/domain/use_cases/change_theme_mode_use_case.dart'
     as _i142;
+import '../../features/app_settings/tool/change_language_tool.dart' as _i118;
+import '../../features/app_settings/tool/change_theme_tool.dart' as _i701;
 import '../../features/chat/data/data_sources/chat_data_source.dart' as _i665;
 import '../../features/chat/data/repositories/chat_repository_impl.dart'
     as _i504;
@@ -144,6 +146,16 @@ extension GetItInjectableX on _i174.GetIt {
         getCurrentWeatherUseCase: gh<_i664.GetCurrentWeatherUseCase>(),
       ),
     );
+    gh.factory<_i118.ChangeLanguageTool>(
+      () => _i118.ChangeLanguageTool(
+        changeLanguageUseCase: gh<_i880.ChangeLanguageUseCase>(),
+      ),
+    );
+    gh.factory<_i701.ChangeThemeTool>(
+      () => _i701.ChangeThemeTool(
+        changeThemeModeUseCase: gh<_i142.ChangeThemeModeUseCase>(),
+      ),
+    );
     gh.factory<_i329.GetLocalWeatherTool>(
       () => _i329.GetLocalWeatherTool(
         getLocalWeatherUseCase: gh<_i576.GetLocalWeatherUseCase>(),
@@ -154,6 +166,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i663.GetWeatherTool>(),
         gh<_i329.GetLocalWeatherTool>(),
         gh<_i14.GetCurrentTimeTool>(),
+        gh<_i118.ChangeLanguageTool>(),
+        gh<_i701.ChangeThemeTool>(),
       ),
     );
     gh.lazySingleton<_i665.ChatDataSource>(

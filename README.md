@@ -49,7 +49,8 @@ Khadeja is a Flutter chat app for Android and iOS. On first launch it downloads 
 **Gemma 4 E2B (instruction-tuned)** model once, then every conversation runs **locally on the
 device** with [`flutter_edge_ai`](https://pub.dev/packages/flutter_edge_ai) and the
 LiteRT-LM engine. After the download, chatting works **fully offline**. She can also call
-**tools**: ask about the weather and she looks it up (this one needs internet).
+**tools**: ask about the weather and she looks it up (this one needs internet), ask the time,
+or ask her to switch the app's language or to dark mode.
 
 You can talk to her in **English or Arabic**, by text, with a **photo**, or with a
 **voice message**, and she answers with streamed, markdown-formatted replies.
@@ -123,6 +124,12 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
   Location permission is asked **the first time you ask**, never at startup. Only lat/lng go
   to Open-Meteo; the place name comes from the phone's own geocoder. If the location isn't
   available (denied, off, or slow), she **asks which city you're in** and looks that up.
+- **`get_current_time`**: the time, date and day of the week from the phone's clock, in its
+  time zone. Works offline.
+- **`change_language`**: switches the app to English or Arabic ("switch to Arabic"), the same
+  as the app bar button.
+- **`change_theme`**: light, dark, or follow the phone ("dark mode please"). The language and
+  theme are saved and kept after a restart.
 - Errors (no internet, unknown city) come back to Gemma, which explains them in the chat.
 
 ### 📥 First-run model download
@@ -171,19 +178,25 @@ State management uses [`provider`](https://pub.dev/packages/provider) with `Chan
 lib/
 ├── main.dart                         # App entry: engine init, DI, locale, theme, providers
 ├── core/
-│   ├── localization/                 # All UI text (English + Arabic), language switch
+│   ├── localization/                 # All UI text (English + Arabic)
 │   ├── network/
 │   │   ├── error/                    # Failure types, ErrorHandler, NotFoundException
 │   │   └── web_service/              # NetworkHelper + DioImpl, API endpoints
-│   ├── services/injection.dart       # get_it + injectable; ToolsInjection registers tools
+│   ├── services/                     # get_it + injectable; ToolsInjection registers tools
 │   ├── tools/                        # The toolbox: AppTool, ToolRegistry, ToolResult, cards
 │   ├── use_cases/use_cases.dart      # UseCase<T, Params> → Either<Failure, T>
 │   └── utils/                        # Constants + system prompt, text direction, WAV info
 └── features/
+    ├── app_settings/                 # Language + theme, saved; change_language, change_theme
+    │   ├── data/                     # shared_preferences data source, repository
+    │   ├── domain/                   # AppSettings, enums, repository, use cases
+    │   ├── presentation/provider/    # AppSettingsProvider (feeds MaterialApp)
+    │   └── tool/                     # change_language, change_theme
     ├── chat/
     │   ├── data/                     # ChatDataSource (only file using flutter_edge_ai), tool loop
     │   ├── domain/                   # ChatEvent, ChatEntry, repository, use cases
     │   └── presentation/             # Screen, providers, bubbles, input bar, tool cards
+    ├── time/                         # get_current_time: use case + tool, no data layer
     ├── location/                     # Current lat/lng + place name (geolocator, geocoding)
     └── weather/                      # One tool feature: get_weather + get_local_weather
         ├── data/                     # Open-Meteo data source, models, repository
@@ -330,9 +343,10 @@ flutter drive -d <device-id> \
 - [ ] Voice-message playback
 - [ ] Save conversations between launches
 - [ ] Stop-generation button
-- [x] Dark theme (follows the system setting)
+- [x] Dark theme (follows the system setting, or ask Khadeja for light or dark)
 - [x] Function calling (tools): weather by city and for your location
 - [x] Ask for your city when the location isn't available
+- [x] Tools for the time, the app's language and light/dark mode
 
 ## Acknowledgements
 

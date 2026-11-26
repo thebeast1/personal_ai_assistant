@@ -1,7 +1,7 @@
 # Language, theme and time tools: design
 
 Date: 2026-11-26
-Status: approved (2026-11-26)
+Status: approved, built (2026-11-26)
 Builds on: `docs/superpowers/specs/2026-11-26-ai-tools-architecture-design.md`
 
 ## Intent
