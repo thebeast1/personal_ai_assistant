@@ -1,5 +1,8 @@
 import 'package:flutter_edge_ai/engine.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:personal_ai_assistant/core/services/injection.dart';
+import 'package:personal_ai_assistant/core/tools/tool_result_views.dart';
+import 'package:personal_ai_assistant/features/chat/domain/entities/chat_entry.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/widgets/chat_input_bar.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/widgets/empty_chat_widget.dart';
@@ -21,12 +24,12 @@ class _ChatListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<ChatProvider, (List<Message>, int, bool)>(
+    return Selector<ChatProvider, (List<ChatEntry>, int, bool)>(
       selector: (_, p) =>
           (p.chatList, p.chatList.length, p.isGeneratingRespond),
       builder: (context, data, _) {
-        final (messages, length, isGenerating) = data;
-        final chatList = messages.reversed.toList();
+        final (entries, length, isGenerating) = data;
+        final chatList = entries.reversed.toList();
         // The list is reversed, so index 0 is the bottom: the reply being
         // generated sits there, below the latest message.
         final offset = isGenerating ? 1 : 0;
@@ -49,7 +52,11 @@ class _ChatListWidget extends StatelessWidget {
             itemCount: length + offset,
             itemBuilder: (context, index) {
               if (isGenerating && index == 0) return const _DraftReply();
-              return MessageBubble(message: chatList[index - offset]);
+              return switch (chatList[index - offset]) {
+                MessageEntry(:final message) => MessageBubble(message: message),
+                ToolResultEntry(:final toolName, :final data) =>
+                  _ToolResultCard(toolName: toolName, data: data),
+              };
             },
           ),
         );
@@ -78,6 +85,25 @@ class _DraftReply extends StatelessWidget {
               key: const ValueKey('draft'),
               message: Message(text: draft, isUser: false),
             ),
+    );
+  }
+}
+
+/// The card a tool registered for its result, start-aligned like the
+/// assistant's bubbles. Nothing when the tool has no card.
+class _ToolResultCard extends StatelessWidget {
+  const _ToolResultCard({required this.toolName, required this.data});
+
+  final String toolName;
+  final Map<String, dynamic> data;
+
+  @override
+  Widget build(BuildContext context) {
+    final card = sl<ToolResultViews>().build(context, toolName, data);
+    if (card == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(52, 4, 12, 4),
+      child: Align(alignment: AlignmentDirectional.centerStart, child: card),
     );
   }
 }
