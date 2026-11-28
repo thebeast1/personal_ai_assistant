@@ -33,6 +33,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Take a photo to send to the assistant.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Khadeja uses your location to show the weather where you are.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Record voice messages to send to the assistant.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

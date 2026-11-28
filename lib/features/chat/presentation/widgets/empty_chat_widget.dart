@@ -14,6 +14,7 @@ class EmptyChatWidget extends StatelessWidget {
   /// Suggestions in the current app language, at most [maxSuggestions].
   static List<Suggestion> suggestionsList(AppStrings strings) => [
     Suggestion(Icons.auto_awesome_rounded, strings.suggestWhatCanYouDo),
+    Suggestion(Icons.wb_sunny_rounded, strings.suggestWeather),
     Suggestion(Icons.lightbulb_outline_rounded, strings.suggestExplain),
     Suggestion(Icons.edit_note_rounded, strings.suggestWrite),
     Suggestion(Icons.fitness_center_rounded, strings.suggestWorkout),

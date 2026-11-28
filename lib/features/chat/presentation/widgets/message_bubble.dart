@@ -6,10 +6,22 @@ import 'package:material_ui/material_ui.dart';
 import 'package:personal_ai_assistant/core/localization/app_strings.dart';
 import 'package:personal_ai_assistant/core/utils/text_direction_detector.dart';
 import 'package:personal_ai_assistant/core/utils/wav_info.dart';
+import 'package:personal_ai_assistant/features/chat/presentation/widgets/message_actions.dart';
 
 class MessageBubble extends StatelessWidget {
-  const MessageBubble({super.key, required this.message});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    this.showActions = true,
+  });
   final Message message;
+
+  /// Copy / Share under the bubble. Off for the reply that is still streaming.
+  final bool showActions;
+
+  /// Avatar width (radius 16) plus the 8 px gap: lines Khadeja's actions up
+  /// with her bubble.
+  static const _avatarInset = 40.0;
 
   @override
   Widget build(BuildContext context) {
@@ -47,17 +59,33 @@ class MessageBubble extends StatelessWidget {
       ),
     );
 
+    final text = message.text.trim();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: 8,
+      child: Column(
+        crossAxisAlignment: isUser
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
-          if (!isUser) const AssistantAvatar(),
-          Flexible(child: bubble),
+          Row(
+            mainAxisAlignment: isUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
+            children: [
+              if (!isUser) const AssistantAvatar(),
+              Flexible(child: bubble),
+            ],
+          ),
+          if (showActions && text.isNotEmpty)
+            Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: isUser ? 0 : _avatarInset,
+              ),
+              child: MessageActions(text: text, isUser: isUser),
+            ),
         ],
       ),
     );

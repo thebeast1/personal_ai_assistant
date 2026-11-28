@@ -5,9 +5,12 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   file_selector_windows
+  geolocator_windows
   flutter_edge_ai
   permission_handler_windows
   record_windows
+  url_launcher_windows
+  share_plus
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

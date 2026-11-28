@@ -6,7 +6,7 @@
 
 <p align="center">
   A private AI chat assistant that runs <b>entirely on your phone</b>.<br/>
-  Powered by Google's <b>Gemma 4 E2B</b> through LiteRT-LM — no server, no account, no data leaves the device.
+  Powered by Google's <b>Gemma 4 E2B</b> through LiteRT-LM — no server, no account. Chats never leave the device; only tools like weather go online.
 </p>
 
 <p align="center">
@@ -48,7 +48,9 @@
 Khadeja is a Flutter chat app for Android and iOS. On first launch it downloads the
 **Gemma 4 E2B (instruction-tuned)** model once, then every conversation runs **locally on the
 device** with [`flutter_edge_ai`](https://pub.dev/packages/flutter_edge_ai) and the
-LiteRT-LM engine. After the download it works **fully offline**.
+LiteRT-LM engine. After the download, chatting works **fully offline**. She can also call
+**tools**: ask about the weather and she looks it up (this one needs internet), ask the time,
+or ask her to switch the app's language or to dark mode.
 
 You can talk to her in **English or Arabic**, by text, with a **photo**, or with a
 **voice message**, and she answers with streamed, markdown-formatted replies.
@@ -103,11 +105,32 @@ You can talk to her in **English or Arabic**, by text, with a **photo**, or with
   vice versa.
 - **Localized launcher name** — *خديچة* on Arabic devices, *Khadeja* elsewhere.
 
+### 📋 Copy and share
+- **Copy** and **Share** buttons under every message. Share opens the phone's share sheet
+  (WhatsApp, Telegram, …). Khadeja's replies are shared without markdown symbols.
+
 ### 🤖 Assistant persona
 - A short, structured **system prompt**: her name (*Khadeja / خديچة*), a warm and concise tone,
-  honesty about not having internet access, and safety rules. In Arabic she speaks about
+  how to use her tools, honesty about what she can't know, and safety rules. In Arabic she speaks about
   herself with feminine grammar.
 - Context window set to **4096 tokens**, replies capped at **1024 tokens**.
+
+### 🛠️ Tools (function calling)
+- Gemma can ask the app to run a **tool**, then answers with the result.
+- **`get_weather`**: current weather for a city, from [Open-Meteo](https://open-meteo.com)
+  (free, no API key). Only the city name is sent. A weather card appears above her reply,
+  in English or Arabic.
+- **`get_local_weather`**: the weather where you are, when you ask without naming a city.
+  Location permission is asked **the first time you ask**, never at startup. Only lat/lng go
+  to Open-Meteo; the place name comes from the phone's own geocoder. If the location isn't
+  available (denied, off, or slow), she **asks which city you're in** and looks that up.
+- **`get_current_time`**: the time, date and day of the week from the phone's clock, in its
+  time zone. Works offline.
+- **`change_language`**: switches the app to English or Arabic ("switch to Arabic"), the same
+  as the app bar button.
+- **`change_theme`**: light, dark, or follow the phone ("dark mode please"). The language and
+  theme are saved and kept after a restart.
+- Errors (no internet, unknown city) come back to Gemma, which explains them in the chat.
 
 ### 📥 First-run model download
 - One-time download screen with an animated **progress ring**, status text and a progress bar.
@@ -153,38 +176,50 @@ State management uses [`provider`](https://pub.dev/packages/provider) with `Chan
 
 ```text
 lib/
-├── main.dart                         # App entry: engine init, locale, theme, providers
+├── main.dart                         # App entry: engine init, DI, locale, theme, providers
 ├── core/
-│   ├── localization/
-│   │   ├── app_strings.dart          # All UI text (English + Arabic)
-│   │   └── locale_provider.dart      # Language switch, persisted in SharedPreferences
-│   └── utils/
-│       ├── app_constants.dart        # Model URL, assistant name, system prompt
-│       ├── text_direction_detector.dart  # LTR/RTL detection per message
-│       └── wav_info.dart             # WAV duration + waveform for voice messages
-└── features/chat/presentation/
-    ├── chat_screen.dart              # Scaffold, app bar (name, clear, language)
-    ├── provider/
-    │   ├── chat_provider.dart        # Model install, session, send/stream, clear
-    │   └── chat_composer_provider.dart  # Input text, image, voice recording
-    └── widgets/
-        ├── loading_widget.dart       # First-run download progress
-        ├── chat_widget.dart          # Message list + streaming draft reply
-        ├── empty_chat_widget.dart    # Greeting + tappable suggestions
-        ├── message_bubble.dart       # Bubbles, markdown, images, voice row
-        ├── message_skeleton.dart     # Shimmer placeholder until first token
-        ├── chat_input_bar.dart       # Text field, attach, mic, send
-        ├── attachment_chip.dart      # Selected-image preview
-        ├── recording_preview.dart    # Live recording / recorded clip preview
-        └── sheets/image_picker_sheet.dart  # Camera or gallery picker
+│   ├── localization/                 # All UI text (English + Arabic)
+│   ├── network/
+│   │   ├── error/                    # Failure types, ErrorHandler, NotFoundException
+│   │   └── web_service/              # NetworkHelper + DioImpl, API endpoints
+│   ├── services/                     # get_it + injectable; ToolsInjection registers tools
+│   ├── tools/                        # The toolbox: AppTool, ToolRegistry, ToolResult, cards
+│   ├── use_cases/use_cases.dart      # UseCase<T, Params> → Either<Failure, T>
+│   └── utils/                        # Constants + system prompt, text direction, WAV info
+└── features/
+    ├── app_settings/                 # Language + theme, saved; change_language, change_theme
+    │   ├── data/                     # shared_preferences data source, repository
+    │   ├── domain/                   # AppSettings, enums, repository, use cases
+    │   ├── presentation/provider/    # AppSettingsProvider (feeds MaterialApp)
+    │   └── tool/                     # change_language, change_theme
+    ├── chat/
+    │   ├── data/                     # ChatDataSource (only file using flutter_edge_ai), tool loop
+    │   ├── domain/                   # ChatEvent, ChatEntry, repository, use cases
+    │   └── presentation/             # Screen, providers, bubbles, input bar, tool cards
+    ├── time/                         # get_current_time: use case + tool, no data layer
+    ├── location/                     # Current lat/lng + place name (geolocator, geocoding)
+    └── weather/                      # One tool feature: get_weather + get_local_weather
+        ├── data/                     # Open-Meteo data source, models, repository
+        ├── domain/                   # Params, repository, GetCurrentWeatherUseCase
+        ├── tool/                     # get_weather, get_local_weather: schema + args → use case
+        └── presentation/widgets/weather_card.dart
 
 assets/
 ├── icon/      # App icon sources (SVG) and 1024 px PNGs
 └── splash/    # Splash screen images (legacy + Android 12)
 
-test/
-└── core/wav_info_test.dart           # WAV parsing and waveform tests
+test/                                 # Mirrors lib/; fixtures/ holds saved API responses
 ```
+
+The full design is in [`docs/ai-tools-architecture-design/architecture-design.md`](docs/ai-tools-architecture-design/architecture-design.md).
+
+### Adding a tool
+
+1. Create `lib/features/<tool>/` with `data`, `domain`, `tool/<name>_tool.dart` (extends
+   `AppTool`) and, if it needs a card, `presentation/widgets/`.
+2. Add the tool to `ToolsInjection` in `lib/core/services/injection.dart` (and its card to
+   `ToolResultViews`), then run `dart run build_runner build --delete-conflicting-outputs`.
+3. List it in the Tools section above, and say whether it goes online.
 
 ## Tech stack
 
@@ -194,7 +229,12 @@ test/
 | Model | [`litert-community/gemma-4-E2B-it-litert-lm`](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm) |
 | UI | [`material_ui`](https://pub.dev/packages/material_ui), [`flutter_markdown_plus`](https://pub.dev/packages/flutter_markdown_plus) |
 | State | [`provider`](https://pub.dev/packages/provider) |
+| DI | [`get_it`](https://pub.dev/packages/get_it), [`injectable`](https://pub.dev/packages/injectable) |
+| Network | [`dio`](https://pub.dev/packages/dio), [`pretty_dio_logger`](https://pub.dev/packages/pretty_dio_logger), [`dartz`](https://pub.dev/packages/dartz) |
+| Weather API | [Open-Meteo](https://open-meteo.com) (no key) |
+| Location | [`geolocator`](https://pub.dev/packages/geolocator), [`geocoding`](https://pub.dev/packages/geocoding) |
 | Storage | [`shared_preferences`](https://pub.dev/packages/shared_preferences) |
+| Sharing | [`share_plus`](https://pub.dev/packages/share_plus) |
 | Media | [`image_picker`](https://pub.dev/packages/image_picker), [`record`](https://pub.dev/packages/record) |
 | Permissions | [`permission_handler`](https://pub.dev/packages/permission_handler) |
 | Branding (dev) | [`flutter_launcher_icons`](https://pub.dev/packages/flutter_launcher_icons), [`flutter_native_splash`](https://pub.dev/packages/flutter_native_splash) |
@@ -218,7 +258,7 @@ flutter run
 ```
 
 On first launch the app downloads the Gemma 4 E2B model (a few GB), so use Wi-Fi. After that it
-works offline.
+chatting works offline.
 
 ## Platform setup
 
@@ -226,14 +266,16 @@ Already configured in this repo — listed here for reference.
 
 **Android** (`android/app/src/main/AndroidManifest.xml`, `build.gradle.kts`)
 - `minSdk = 30` (required by LiteRT-LM).
-- `INTERNET` for the model download (also in release builds).
+- `INTERNET` for the model download and online tools (also in release builds).
+- `ACCESS_COARSE_LOCATION` for `get_local_weather` (asked only when it runs).
 - `CAMERA`, `RECORD_AUDIO`, and photo access (`READ_MEDIA_IMAGES`,
   `READ_MEDIA_VISUAL_USER_SELECTED`, `READ_EXTERNAL_STORAGE` up to API 32).
 - GPU/NPU native-library entries merge in automatically from the plugin.
 
 **iOS** (`ios/Runner/Info.plist`, `Runner.entitlements`)
 - Deployment target **15.0**.
-- `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSMicrophoneUsageDescription`.
+- `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSMicrophoneUsageDescription`,
+  `NSLocationWhenInUseUsageDescription`.
 - Increased-memory and extended-virtual-addressing entitlements for the large model
   (needs a paid Apple developer account; remove them for free provisioning).
 - Localized display name in `en.lproj` / `ar.lproj` `InfoPlist.strings`.
@@ -291,7 +333,8 @@ flutter drive -d <device-id> \
   message is rejected; clear the conversation to start a new session.
 - **Voice messages can't be played back** in the app yet — the bubble shows the waveform and
   duration only.
-- The model has **no internet access**, so it can't answer about current events.
+- The model has **no web access**: only its tools (weather for now) go online, so it can't
+  answer about current events.
 
 ## Roadmap
 
@@ -300,7 +343,10 @@ flutter drive -d <device-id> \
 - [ ] Voice-message playback
 - [ ] Save conversations between launches
 - [ ] Stop-generation button
-- [x] Dark theme (follows the system setting)
+- [x] Dark theme (follows the system setting, or ask Khadeja for light or dark)
+- [x] Function calling (tools): weather by city and for your location
+- [x] Ask for your city when the location isn't available
+- [x] Tools for the time, the app's language and light/dark mode
 
 ## Acknowledgements
 

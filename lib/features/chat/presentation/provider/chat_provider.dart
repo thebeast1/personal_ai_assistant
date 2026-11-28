@@ -1,11 +1,32 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter_edge_ai/engine.dart';
+import 'package:flutter_edge_ai/flutter_edge_ai.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:personal_ai_assistant/core/utils/app_constants.dart';
+import 'package:personal_ai_assistant/core/services/injection.dart';
+import 'package:personal_ai_assistant/core/tools/tool_result.dart';
+import 'package:personal_ai_assistant/core/use_cases/use_cases.dart';
+import 'package:personal_ai_assistant/features/chat/domain/entities/chat_entry.dart';
+import 'package:personal_ai_assistant/features/chat/domain/entities/chat_event.dart';
+import 'package:personal_ai_assistant/features/chat/domain/params/init_chat_params.dart';
+import 'package:personal_ai_assistant/features/chat/domain/use_cases/clear_chat_use_case.dart';
+import 'package:personal_ai_assistant/features/chat/domain/use_cases/init_chat_use_case.dart';
+import 'package:personal_ai_assistant/features/chat/domain/use_cases/send_message_use_case.dart';
 
 class ChatProvider extends ChangeNotifier {
+  /// Use cases come from [sl] in the app. Tests pass mocks instead.
+  ChatProvider({
+    InitChatUseCase? initChatUseCase,
+    SendMessageUseCase? sendMessageUseCase,
+    ClearChatUseCase? clearChatUseCase,
+  }) : _initChatUseCase = initChatUseCase ?? sl<InitChatUseCase>(),
+       _sendMessageUseCase = sendMessageUseCase ?? sl<SendMessageUseCase>(),
+       _clearChatUseCase = clearChatUseCase ?? sl<ClearChatUseCase>();
+
+  final InitChatUseCase _initChatUseCase;
+  final SendMessageUseCase _sendMessageUseCase;
+  final ClearChatUseCase _clearChatUseCase;
+
   bool _disposed = false;
 
   int get installProgress => _installProgress;
@@ -20,70 +41,47 @@ class ChatProvider extends ChangeNotifier {
   bool get isClearing => _isClearing;
   bool _isClearing = false;
 
-  late InferenceModel _model;
-  late InferenceChat _chat;
+  final _chatList = <ChatEntry>[];
 
-  final _chatList = <Message>[];
-
-  List<Message> get chatList => _chatList;
+  List<ChatEntry> get chatList => _chatList;
 
   Future<void> init() async {
-    try {
-      await FlutterEdgeAi.installModel(
-        modelType: ModelType.gemma4,
-        fileType: ModelFileType.litertlm,
-      ).fromNetwork(AppConstants.gemmaURL, foreground: true).withProgress((p) {
-        _installProgress = p;
-        notifyListeners();
-      }).install();
-
-      _model = await FlutterEdgeAi.getActiveModel(
-        supportImage: true,
-        supportAudio: true,
-        maxTokens: 4096, // context window: prompt + history + reply
-      );
-      _chat = await _model.openChat(
-        supportImage: true,
-        supportAudio: true,
-        temperature: 1.0,
-        topK: 64,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-        // optional: limits the length of one reply
-        modelType: ModelType.gemma4,
-        systemInstruction: AppConstants.systemInstruction,
-      );
+    final result = await _initChatUseCase(
+      InitChatParams(
+        onProgress: (p) {
+          _installProgress = p;
+          notifyListeners();
+        },
+      ),
+    );
+    result.fold((failure) => log('error in init: ${failure.message}'), (_) {
       _isInitializing = false;
       notifyListeners();
-    } catch (e) {
-      log("error in init: $e");
-    }
+    });
   }
 
   /// The reply being streamed, token by token. Empty until the first token.
   final StringBuffer draftMessage = StringBuffer();
 
   Future<void> send(Message userMessage) async {
-    _chatList.add(userMessage);
+    _chatList.add(MessageEntry(userMessage));
     draftMessage.clear();
     _isGeneratingRespond = true;
     notifyListeners();
 
     try {
-      await _chat.addQuery(userMessage);
-      // return the respond all at once.
-      // final response = await _chat.generateChatResponse();
-      // if (response is TextResponse && response.token.isNotEmpty) {
-      //   _chatList.add(Message(text: response.token, isUser: false));
-      //   notifyListeners();
-      // }
-
-      // Awaited so `finally` runs only after the last token has arrived.
-      await for (final response in _chat.generateChatResponseAsync()) {
-        if (response is TextResponse && response.token.isNotEmpty) {
-          draftMessage.write(response.token);
-          notifyListeners();
+      // Awaited so `finally` runs only after the last event has arrived.
+      await for (final event in _sendMessageUseCase(userMessage)) {
+        switch (event) {
+          case TextChunk(:final text):
+            draftMessage.write(text);
+          case ToolExecuted(:final toolName, result: ToolSuccess(:final data)):
+            _chatList.add(ToolResultEntry(toolName, data));
+          case ToolExecuted():
+            // A failed tool shows no card: Gemma explains it in the reply.
+            break;
         }
+        notifyListeners();
       }
     } catch (e) {
       log("Error in send: $e");
@@ -95,7 +93,9 @@ class ChatProvider extends ChangeNotifier {
   /// Moves the streamed draft into the chat list and ends generation.
   void _finishGenerationHandler() {
     if (draftMessage.isNotEmpty) {
-      _chatList.add(Message(text: draftMessage.toString(), isUser: false));
+      _chatList.add(
+        MessageEntry(Message(text: draftMessage.toString(), isUser: false)),
+      );
       draftMessage.clear();
     }
     _isGeneratingRespond = false;
@@ -107,27 +107,15 @@ class ChatProvider extends ChangeNotifier {
 
     _isClearing = true;
     notifyListeners();
-    try {
-      await _chat.close();
-      _chat = await _model.openChat(
-        supportImage: true,
-        supportAudio: true,
-        temperature: 1.0,
-        topK: 64,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-        // optional: limits the length of one reply
-        modelType: ModelType.gemma4,
-        systemInstruction: AppConstants.systemInstruction,
-      );
+
+    final result = await _clearChatUseCase(const NoParams());
+    result.fold((failure) => log("Error in clear: ${failure.message}"), (_) {
       _chatList.clear();
       draftMessage.clear();
-    } catch (e) {
-      log("Error in clear: $e");
-    } finally {
-      _isClearing = false;
-      notifyListeners();
-    }
+    });
+
+    _isClearing = false;
+    notifyListeners();
   }
 
   @override

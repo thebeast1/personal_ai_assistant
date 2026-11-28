@@ -52,6 +52,12 @@ class AppStrings {
     'سيتم حذف جميع الرسائل وبدء جلسة جديدة. لا يمكن التراجع عن ذلك.',
   );
   String get cancel => _t('Cancel', 'إلغاء');
+
+  // Message actions
+  String get copy => _t('Copy', 'نسخ');
+  String get copied => _t('Copied', 'تم النسخ');
+  String get share => _t('Share', 'مشاركة');
+
   String get clear => _t('Clear', 'مسح');
 
   // Empty chat
@@ -62,6 +68,10 @@ class AppStrings {
   );
   String get suggestWhatCanYouDo =>
       _t('What can you do?', 'ماذا يمكنك أن تفعل؟');
+  String get suggestWeather => _t(
+    "What's the weather in Cairo today?",
+    'كيف الطقس في القاهرة اليوم؟',
+  );
   String get suggestExplain => _t(
     'Explain how the internet works in simple words',
     'اشرح كيف يعمل الإنترنت بكلمات بسيطة',
@@ -78,4 +88,23 @@ class AppStrings {
     'Suggest 5 quick and easy dinner ideas',
     'اقترح ٥ أفكار سريعة وسهلة للعشاء',
   );
+
+  // Weather card
+  String get feelsLike => _t('Feels like', 'الإحساس الحراري');
+  String get humidity => _t('Humidity', 'الرطوبة');
+  String get wind => _t('Wind', 'الرياح');
+  String get kmPerHour => _t('km/h', 'كم/س');
+
+  /// Label for a weather condition, by its enum name (`clear`, `rain`, …).
+  String weatherCondition(String name) => switch (name) {
+    'clear' => _t('Clear', 'صافٍ'),
+    'partlyCloudy' => _t('Partly cloudy', 'غائم جزئيًا'),
+    'cloudy' => _t('Cloudy', 'غائم'),
+    'fog' => _t('Fog', 'ضباب'),
+    'drizzle' => _t('Drizzle', 'رذاذ'),
+    'rain' => _t('Rain', 'ممطر'),
+    'snow' => _t('Snow', 'ثلج'),
+    'thunderstorm' => _t('Thunderstorm', 'عاصفة رعدية'),
+    _ => _t('Unknown', 'غير معروف'),
+  };
 }

@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:personal_ai_assistant/core/localization/app_strings.dart';
-import 'package:personal_ai_assistant/core/localization/locale_provider.dart';
+import 'package:personal_ai_assistant/features/app_settings/presentation/provider/app_settings_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/provider/chat_provider.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/widgets/chat_widget.dart';
 import 'package:personal_ai_assistant/features/chat/presentation/widgets/loading_widget.dart';
@@ -49,7 +49,7 @@ class _LanguageButton extends StatelessWidget {
     return Tooltip(
       message: strings.switchLanguageTooltip,
       child: TextButton.icon(
-        onPressed: () => context.read<LocaleProvider>().toggle(
+        onPressed: () => context.read<AppSettingsProvider>().toggleLanguage(
           Localizations.localeOf(context),
         ),
         icon: const Icon(Icons.translate_rounded, size: 20),
